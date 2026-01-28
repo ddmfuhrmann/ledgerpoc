@@ -1,8 +1,8 @@
-package io.github.ddmfuhrmann.ledgerpoc.integration;
+package io.github.ddmfuhrmann.ledgerpoc.infra.repository;
 
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxEvent;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxStatus;
-import io.github.ddmfuhrmann.ledgerpoc.infra.repository.OutboxRepository;
+import io.github.ddmfuhrmann.ledgerpoc.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

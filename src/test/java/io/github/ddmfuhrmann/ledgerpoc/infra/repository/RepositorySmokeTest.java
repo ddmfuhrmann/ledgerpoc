@@ -1,10 +1,7 @@
-package io.github.ddmfuhrmann.ledgerpoc.integration;
+package io.github.ddmfuhrmann.ledgerpoc.infra.repository;
 
 import io.github.ddmfuhrmann.ledgerpoc.domain.*;
-import io.github.ddmfuhrmann.ledgerpoc.infra.repository.BalanceRepository;
-import io.github.ddmfuhrmann.ledgerpoc.infra.repository.LedgerRepository;
-import io.github.ddmfuhrmann.ledgerpoc.infra.repository.PayeeRepository;
-import io.github.ddmfuhrmann.ledgerpoc.infra.repository.PaymentRepository;
+import io.github.ddmfuhrmann.ledgerpoc.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
