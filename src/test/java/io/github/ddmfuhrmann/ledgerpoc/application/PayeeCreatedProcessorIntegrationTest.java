@@ -89,7 +89,7 @@ class PayeeCreatedProcessorIntegrationTest extends AbstractIntegrationTest {
     void shouldBeIdempotentWhenBalanceAlreadyExistsOnRedrive() {
         // given — create payee + PAYEE_CREATED event
         UUID externalId = UUID.randomUUID();
-        Payee payee = createPayeeCommandService.create(new CreatePayeeCommand(externalId));
+        createPayeeCommandService.create(new CreatePayeeCommand(externalId));
 
         OutboxEvent payeeCreatedEvent = outboxRepository.findAll().stream()
                 .filter(e -> OutboxEventType.PAYEE_CREATED.name().equals(e.getEventType()))

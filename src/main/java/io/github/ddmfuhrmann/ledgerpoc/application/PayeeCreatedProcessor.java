@@ -29,6 +29,7 @@ public class PayeeCreatedProcessor {
     public void process(OutboxEvent event) {
         PayeeCreatedPayload payload = jsonSerializer.deserialize(event.getPayload(), PayeeCreatedPayload.class);
 
+        // provision() joins this transaction (REQUIRED) — do not change to REQUIRES_NEW or atomicity breaks
         provisionBalanceCommandService.provision(new ProvisionBalanceCommand(payload.payeeExternalId()));
 
         event.markPublished();
