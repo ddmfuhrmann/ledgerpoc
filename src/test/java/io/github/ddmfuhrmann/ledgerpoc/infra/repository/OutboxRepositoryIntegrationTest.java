@@ -22,6 +22,7 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
         OutboxEvent event = new OutboxEvent(
                 "PAYMENT",
                 1L,
+                1L,
                 "CashOutConfirmed",
                 "{\"amount\":100}"
         );
@@ -47,6 +48,7 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
     void shouldMarkEventAsPublished() {
         OutboxEvent event = new OutboxEvent(
                 "PAYMENT",
+                2L,
                 2L,
                 "CashInConfirmed",
                 "{\"amount\":50}"

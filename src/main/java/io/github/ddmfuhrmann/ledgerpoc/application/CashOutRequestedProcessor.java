@@ -78,6 +78,7 @@ public class CashOutRequestedProcessor {
         outboxRepository.save(
                 OutboxEventType.CASH_OUT_FAILED.toEvent(
                         payment.getId(),
+                        payload.payeeId(),
                         jsonSerializer.serialize(new CashOutFailedPayload(
                                 payload.paymentId(),
                                 payload.payeeId(),
@@ -96,6 +97,7 @@ public class CashOutRequestedProcessor {
         outboxRepository.save(
                 OutboxEventType.CASH_OUT_CONFIRMED.toEvent(
                         payment.getId(),
+                        payload.payeeId(),
                         jsonSerializer.serialize(new CashOutConfirmedPayload(
                                 payload.paymentId(),
                                 payload.payeeId(),

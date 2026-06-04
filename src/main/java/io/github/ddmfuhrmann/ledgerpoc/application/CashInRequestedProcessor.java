@@ -62,6 +62,7 @@ public class CashInRequestedProcessor {
 
         outboxRepository.save(OutboxEventType.CASH_IN_CONFIRMED.toEvent(
                 payment.getId(),
+                payload.payeeId(),
                 jsonSerializer.serialize(new CashInConfirmedPayload(payload.paymentId(), payload.payeeId(), payload.amount()))
         ));
     }

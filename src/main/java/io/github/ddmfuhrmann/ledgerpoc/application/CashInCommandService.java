@@ -58,6 +58,7 @@ public class CashInCommandService {
 
         OutboxEvent event = eventType.toEvent(
                 payment.getId(),
+                payee.getId(),
                 jsonSerializer.serialize(payload)
         );
 
