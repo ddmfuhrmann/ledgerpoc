@@ -74,3 +74,6 @@ Do not default to unit tests when integration tests are more appropriate.
 - `.skills/testcontainers.md`
 - `.skills/fixtures.md`
 - `.skills/edge-case-generation.md`
+- `.skills/patterns.md`
+- `.skills/karpathy-guidelines.md`
+- `.skills/caveman.md`
