@@ -8,7 +8,10 @@ public enum OutboxEventType {
 
     CASH_OUT_REQUESTED(AggregateType.PAYMENT),
     CASH_OUT_CONFIRMED(AggregateType.PAYMENT),
-    CASH_OUT_FAILED(AggregateType.PAYMENT);
+    CASH_OUT_FAILED(AggregateType.PAYMENT),
+
+    PAYEE_CREATED(AggregateType.PAYEE),
+    BALANCE_PROVISIONED(AggregateType.PAYEE);
 
     private final AggregateType aggregateType;
 
