@@ -83,24 +83,24 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
         long payeeA = 10L;
         long payeeB = 20L;
 
-        OutboxEvent payeeA_oldest = pendingEvent(payeeA, 101L, "CashInRequested");
-        outboxRepository.saveAndFlush(payeeA_oldest);
+        OutboxEvent payeeAOldest = pendingEvent(payeeA, 101L, "CashInRequested");
+        outboxRepository.saveAndFlush(payeeAOldest);
         Thread.sleep(2);
 
-        OutboxEvent payeeA_middle = pendingEvent(payeeA, 102L, "CashInConfirmed");
-        outboxRepository.saveAndFlush(payeeA_middle);
+        OutboxEvent payeeAMiddle = pendingEvent(payeeA, 102L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(payeeAMiddle);
         Thread.sleep(2);
 
-        OutboxEvent payeeA_newest = pendingEvent(payeeA, 103L, "CashOutRequested");
-        outboxRepository.saveAndFlush(payeeA_newest);
+        OutboxEvent payeeANewest = pendingEvent(payeeA, 103L, "CashOutRequested");
+        outboxRepository.saveAndFlush(payeeANewest);
         Thread.sleep(2);
 
-        OutboxEvent payeeB_oldest = pendingEvent(payeeB, 201L, "CashInRequested");
-        outboxRepository.saveAndFlush(payeeB_oldest);
+        OutboxEvent payeeBOldest = pendingEvent(payeeB, 201L, "CashInRequested");
+        outboxRepository.saveAndFlush(payeeBOldest);
         Thread.sleep(2);
 
-        OutboxEvent payeeB_newest = pendingEvent(payeeB, 202L, "CashInConfirmed");
-        outboxRepository.saveAndFlush(payeeB_newest);
+        OutboxEvent payeeBNewest = pendingEvent(payeeB, 202L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(payeeBNewest);
 
         List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(10);
 
@@ -112,12 +112,12 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
         OutboxEvent returnedForPayeeA = result.stream()
                 .filter(e -> e.getPayeeId().equals(payeeA))
                 .findFirst().orElseThrow();
-        assertThat(returnedForPayeeA.getId()).isEqualTo(payeeA_oldest.getId());
+        assertThat(returnedForPayeeA.getId()).isEqualTo(payeeAOldest.getId());
 
         OutboxEvent returnedForPayeeB = result.stream()
                 .filter(e -> e.getPayeeId().equals(payeeB))
                 .findFirst().orElseThrow();
-        assertThat(returnedForPayeeB.getId()).isEqualTo(payeeB_oldest.getId());
+        assertThat(returnedForPayeeB.getId()).isEqualTo(payeeBOldest.getId());
     }
 
     @Test

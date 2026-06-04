@@ -12,6 +12,7 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
 
     List<OutboxEvent> findTop100ByStatusOrderByCreatedAtAsc(OutboxStatus status);
 
+    // batchSize = max number of payees to return (one oldest event each, not total events)
     @Query(value = """
             WITH candidates AS MATERIALIZED (
                 SELECT DISTINCT ON (payee_id) id
@@ -25,7 +26,6 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
             JOIN candidates c ON o.id = c.id
             FOR UPDATE OF o SKIP LOCKED
             """, nativeQuery = true)
-    // batchSize = max number of payees to return (one oldest event each, not total events)
     List<OutboxEvent> findOldestPendingPerPayeeSkipLocked(@Param("batchSize") int batchSize);
 
 }
