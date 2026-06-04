@@ -8,6 +8,8 @@ tools:
   - mcp__notion__API-patch-page
   - mcp__notion__API-get-block-children
   - mcp__notion__API-patch-block-children
+  - mcp__notion__API-update-a-block
+  - mcp__notion__API-delete-a-block
 ---
 
 # Notion Agent
@@ -30,8 +32,13 @@ You handle all Notion operations for LedgerPOC. You read `.skills/notion-docs.md
 
 **save-optimization-report**: Create a sub-page in `LedgerPOC/Optimizations/` with the optimization report content. Return: page URL.
 
+**update-roadmap**: Sync a feature's status in the roadmap table. Follow "Sincronizar status no roadmap" in `.skills/notion-docs.md`. Called with: feature name + target status (🔄 Em progresso or ✅ Concluído).
+
 ## Rules
 
 1. Always read `.skills/notion-docs.md` before any write operation.
 2. Return the page URL on every successful write.
 3. If a parent page doesn't exist, report the error — do not create it speculatively.
+4. After `save-plan`: always call `update-roadmap` to mark the feature as 🔄 Em progresso.
+5. After `save-handoff`: the roadmap update is already included in the handoff procedure — do not skip it.
+6. When inserting a new row into the roadmap table, always position it after all its declared dependencies. Never append blindly to the end.

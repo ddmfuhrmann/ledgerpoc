@@ -201,9 +201,11 @@ Ledger POC (página raiz)
 3. Preencher com o template Handoff acima, usando o output do `/handoff`.
 4. Retornar o link.
 
-### Atualizar Roadmap ao concluir uma feature
+### Sincronizar status no roadmap
 
-Executar **sempre ao final do `/handoff`**, depois de salvar a sub-página de handoff.
+Chamar em dois momentos:
+- **Ao salvar um plano** (`save-plan`): marcar a feature como 🔄 Em progresso.
+- **Ao salvar um handoff** (`save-handoff`): marcar a feature como ✅ Concluído.
 
 **Passo 1 — obter os IDs das linhas da tabela**
 
@@ -213,21 +215,31 @@ A resposta é uma lista de `table_row` blocks. Cada item tem `id` e `table_row.c
 
 **Passo 2 — identificar a linha correta**
 
-Comparar `cells[0][0].plain_text` com o nome da feature concluída.
-Guardar o `id` da linha correspondente.
+Comparar `cells[0][0].plain_text` com o nome da feature. Guardar o `id` da linha correspondente.
+
+Se a feature **não existir** no roadmap, inserir uma nova linha na posição correta (ver regra abaixo) e parar aqui.
 
 **Passo 3 — atualizar o status**
 
 Chamar `API-update-a-block` com:
 - `block_id` = ID da linha encontrada no passo 2
-- body: `{"table_row": {"cells": [<célula 0 original>, <célula 1 original>, [{"type": "text", "text": {"content": "✅ Concluído"}}], <célula 3 original>, <célula 4 original>]}}`
+- body: `{"table_row": {"cells": [<célula 0 original>, <célula 1 original>, [{"type": "text", "text": {"content": "<novo status>"}}], <célula 3 original>, <célula 4 original>]}}`
 
 Preservar o conteúdo das outras células — substituir apenas `cells[2]`.
 
-**Quando usar status diferentes de ✅ Concluído**
+**Tabela de status**
 
 | Situação | Status |
 |---|---|
-| Trabalho iniciado, branch ativo | 🔄 Em progresso |
+| Plano criado, trabalho iniciado | 🔄 Em progresso |
+| Feature entregue (handoff salvo) | ✅ Concluído |
 | Depende de outra entrega não pronta | 🔒 Bloqueado |
 | Revertido / descartado | ⏳ Não iniciado |
+
+**Regra de ordem ao inserir nova feature**
+
+Nunca anexar a nova linha ao final da tabela sem verificar as dependências.
+1. Ler o campo "Depends on" da nova feature.
+2. Localizar a última linha cujo Feature name aparece como dependência.
+3. Inserir a nova linha **imediatamente após** essa linha.
+4. Se não houver dependência, inserir após os itens ✅ Concluído e antes dos ⏳ Não iniciado.
