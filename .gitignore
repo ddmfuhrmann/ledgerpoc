@@ -34,3 +34,6 @@ build/
 
 ### Dev harness working files ###
 .current-plan.md
+
+### SonarQube ###
+.bsdd-sonar-token
