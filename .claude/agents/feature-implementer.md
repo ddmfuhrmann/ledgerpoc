@@ -36,11 +36,12 @@ You write production code. You do not plan, review, or optimize. You implement e
 
 1. Read `.current-plan.md`. Confirm scope and approach.
 2. Read `CLAUDE.md` and the skills listed under "Skills to load for this task".
-3. List the files you expect to touch (cross-check with plan).
-4. Implement changes file by file.
-5. After each file, note what was done and whether it matches the plan.
-6. Compile to verify no errors (`mvn compile -q`).
-7. Produce the implementation summary.
+3. **Create a feature branch before touching any file.** Derive the name from the plan title, e.g. `git checkout -b feat/cash-out-processor`. If already on a feature branch (not `main`), skip this step.
+4. List the files you expect to touch (cross-check with plan).
+5. Implement changes file by file.
+6. After each file, note what was done and whether it matches the plan.
+7. Compile to verify no errors (`mvn compile -q`).
+8. Produce the implementation summary.
 
 ## Output
 
