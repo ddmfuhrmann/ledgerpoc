@@ -43,7 +43,6 @@ public class CashOutRequestedProcessor {
 
     @Transactional
     public void process(OutboxEvent event) {
-
         Payment payment = paymentRepository.findById(event.getAggregateId())
                 .orElseThrow(() -> new IllegalStateException("Payment not found"));
 
@@ -58,25 +57,38 @@ public class CashOutRequestedProcessor {
         Balance balance = balanceRepository.findById(payload.payeeId())
                 .orElseThrow(() -> new IllegalStateException("Balance not found"));
 
-        // domain is single authority on insufficient funds
+        applyDebit(payment, balance, payload);
+    }
+
+    private void applyDebit(Payment payment, Balance balance, CashOutRequestedPayload payload) {
+        // Catches IllegalStateException (insufficient funds) only.
+        // IllegalArgumentException from an invalid amount propagates intentionally —
+        // a non-positive amount in a persisted outbox payload is an upstream bug, not a business failure.
         try {
             balance.debit(payload.amount());
         } catch (IllegalStateException e) {
-            payment.fail();
-            outboxRepository.save(
-                    OutboxEventType.CASH_OUT_FAILED.toEvent(
-                            payment.getId(),
-                            jsonSerializer.serialize(new CashOutFailedPayload(
-                                    payload.paymentId(),
-                                    payload.payeeId(),
-                                    payload.amount(),
-                                    "INSUFFICIENT_FUNDS"
-                            ))
-                    )
-            );
+            failCashOut(payment, payload);
             return;
         }
+        confirmCashOut(payment, payload);
+    }
 
+    private void failCashOut(Payment payment, CashOutRequestedPayload payload) {
+        payment.fail();
+        outboxRepository.save(
+                OutboxEventType.CASH_OUT_FAILED.toEvent(
+                        payment.getId(),
+                        jsonSerializer.serialize(new CashOutFailedPayload(
+                                payload.paymentId(),
+                                payload.payeeId(),
+                                payload.amount(),
+                                "INSUFFICIENT_FUNDS"
+                        ))
+                )
+        );
+    }
+
+    private void confirmCashOut(Payment payment, CashOutRequestedPayload payload) {
         ledgerRepository.save(
                 new LedgerEntry(payment.getPayee(), payment, LedgerType.DEBIT, payload.amount())
         );
