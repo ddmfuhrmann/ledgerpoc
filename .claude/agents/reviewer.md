@@ -29,10 +29,13 @@ Secondary question: **does it follow project guidelines without introducing unne
 1. Read `.current-plan.md`.
 2. Read `CLAUDE.md` and the skills listed under "Skills to load for this task".
 3. Run `git diff main` and read the full output.
-4. Check plan coverage (every scope item present in diff?).
-5. Check for scope creep (anything in diff not in plan?).
-6. Check guideline compliance.
-7. Produce the review summary with severity-labeled findings.
+4. **SonarQube (conditional):** check whether `sonar-project.properties` exists at the project root.
+   - **Present** → load and execute `.skills/sonar-analysis.md` in full before producing findings. Include its output under a `### Sonar Analysis Findings` section. Block if any Docker step fails.
+   - **Absent** → skip Sonar entirely. Do not mention it in the output.
+5. Check plan coverage (every scope item present in diff?).
+6. Check for scope creep (anything in diff not in plan?).
+7. Check guideline compliance.
+8. Produce the review summary with severity-labeled findings.
 
 ## What to look for
 
@@ -94,3 +97,4 @@ Secondary question: **does it follow project guidelines without introducing unne
 - `.skills/patterns.md`
 - `.skills/karpathy-guidelines.md`
 - `.skills/caveman.md`
+- `.skills/sonar-analysis.md` *(load and execute only if `sonar-project.properties` exists at project root)*
