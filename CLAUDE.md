@@ -9,13 +9,15 @@ and an event-driven read replica. The system explores async processing, backpres
 ## Workflow
 
 ```
-/plan → /grill-me → /revise-plan → /implement → /test → /review → [/optimize] → /handoff
+/f-prd (optional) → /f-plan → /f-implement → /f-ship → [/f-optimize]
 ```
 
-- No code before a revised plan exists.
+- No code before a revised plan exists (saved in `.plans/`).
 - No optimization without a measured baseline.
 - No scope expansion without an explicit note in the plan.
-- Reviewer always diffs against the **revised** plan, not the original.
+- Reviewer always diffs against the saved plan, not the original.
+
+See `docs/workflow.md` for the full guide.
 
 ---
 
@@ -35,6 +37,8 @@ and an event-driven read replica. The system explores async processing, backpres
 ## Architecture
 
 See `.skills/project-architecture.md` for full rules.
+
+**Mandatory reading for agents touching Balance, LedgerEntry, or Payment:** `docs/architecture.md`
 
 ```
 src/main/java/io/github/ddmfuhrmann/ledgerpoc/
@@ -80,12 +84,37 @@ must address all that apply.
 
 ## Agents
 
+### Domain agents (Sonnet 4.6 — heavy code work)
+
 | Agent | File | Role |
 |---|---|---|
-| Feature Implementer | `.agents/feature-implementer.md` | Executes revised plan, no silent scope expansion |
-| Test Implementer | `.agents/test-implementer.md` | Adds/improves tests, picks test type |
-| Reviewer | `.agents/reviewer.md` | Diffs output against revised plan + guidelines |
-| Optimizer | `.agents/optimizer.md` | Evidence-based performance work only |
+| Feature Implementer | `.claude/agents/feature-implementer.md` | Executes revised plan, no silent scope expansion |
+| Test Implementer | `.claude/agents/test-implementer.md` | Adds/improves tests, picks test type |
+| Reviewer | `.claude/agents/reviewer.md` | Diffs output against revised plan + guidelines |
+
+### Optimizer (Opus 4.8 — complex analysis, autonomous loop)
+
+| Agent | File | Role |
+|---|---|---|
+| Optimizer | `.claude/agents/optimizer.md` | Evidence-based performance work only |
+
+### Integration agents (Haiku 4.5 — fast, cheap, focused)
+
+| Agent | File | Role |
+|---|---|---|
+| Notion Agent | `.claude/agents/notion-agent.md` | All Notion CRUD: ADRs, Plans, PRDs, Handoffs |
+| Git Agent | `.claude/agents/git-agent.md` | Branch, commit, PR |
+
+---
+
+## Global Skills (always active — no trigger required)
+
+These skills are loaded in every conversation and apply to all agents.
+
+| Skill | Purpose |
+|---|---|
+| `.skills/caveman.md` | Ultra-compressed mode — **always active by default**. Off only when user says "stop caveman" or "normal mode" |
+| `.skills/karpathy-guidelines.md` | Coding behavior: think before coding, simplicity first, surgical changes, goal-driven execution |
 
 ---
 
@@ -97,13 +126,14 @@ must address all that apply.
 | `.skills/code-style.md` | Naming, method size, comments, DTO patterns |
 | `.skills/error-handling.md` | Exception strategy, domain invariants |
 | `.skills/plan-first-development.md` | Plan workflow rules and checklist |
+| `.skills/patterns.md` | Canonical code snippets extracted from the live codebase |
 | `.skills/grill-me.md` | How to challenge a plan effectively |
 | `.skills/diff-review.md` | Review process and severity labeling |
 | `.skills/testcontainers.md` | Integration test setup with Postgres |
 | `.skills/fixtures.md` | Test fixture patterns for this domain |
 | `.skills/testing-strategy.md` | Which test type to use and when |
 | `.skills/edge-case-generation.md` | Systematic edge case discovery |
-| `.skills/notion-docs.md` | Templates e procedure para salvar planos, ADRs, PRDs e handoffs no Notion |
+| `.skills/notion-docs.md` | Templates e procedure para salvar planos, ADRs, PRDs e handoffs no Notion (notion-agent only) |
 | `.skills/local-env-orchestration.md` | Starting local environment |
 | `.skills/observability-setup.md` | Configure logs/metrics before performance investigation |
 | `.skills/messaging-analysis.md` | Outbox throughput, processing latency, SQS consumer lag |

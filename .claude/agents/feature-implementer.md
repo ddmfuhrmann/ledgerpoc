@@ -61,3 +61,6 @@ You write production code. You do not plan, review, or optimize. You implement e
 - `.skills/code-style.md`
 - `.skills/error-handling.md`
 - `.skills/plan-first-development.md`
+- `.skills/patterns.md`
+- `.skills/karpathy-guidelines.md`
+- `.skills/caveman.md`

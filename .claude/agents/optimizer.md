@@ -101,3 +101,5 @@ Reason: [one sentence]
 - `.skills/messaging-analysis.md`
 - `.skills/benchmark-execution.md`
 - `.skills/optimization-reporting.md`
+- `.skills/karpathy-guidelines.md`
+- `.skills/caveman.md`

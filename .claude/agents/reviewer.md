@@ -91,3 +91,6 @@ Secondary question: **does it follow project guidelines without introducing unne
 - `.skills/project-architecture.md`
 - `.skills/code-style.md`
 - `.skills/error-handling.md`
+- `.skills/patterns.md`
+- `.skills/karpathy-guidelines.md`
+- `.skills/caveman.md`
