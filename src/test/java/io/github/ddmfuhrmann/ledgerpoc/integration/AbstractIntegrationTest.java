@@ -3,19 +3,22 @@ package io.github.ddmfuhrmann.ledgerpoc.integration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SuppressWarnings("resource")
-@Testcontainers
 public abstract class AbstractIntegrationTest {
 
-    @Container
-    static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres")
-                    .withDatabaseName("ledgerpoc")
-                    .withUsername("test")
-                    .withPassword("test");
+    // Single container for the entire JVM. The Testcontainers JUnit extension
+    // (@Container) stops/restarts the container between test classes, which
+    // invalidates the HikariCP pool held by Spring's cached ApplicationContext.
+    // Starting it once here keeps the port stable across all test classes.
+    static final PostgreSQLContainer<?> postgres;
+
+    static {
+        postgres = new PostgreSQLContainer<>("postgres")
+                .withDatabaseName("ledgerpoc")
+                .withUsername("test")
+                .withPassword("test");
+        postgres.start();
+    }
 
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry registry) {
