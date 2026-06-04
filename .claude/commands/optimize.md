@@ -1,18 +1,18 @@
 # /optimize
 
-Invoke the Optimizer. Use only when performance, query efficiency, throughput, latency, or resource usage is an explicit concern.
+Spawn the `optimizer` subagent. Use only when performance, query efficiency, throughput, latency, or resource usage is an explicit concern.
 
 Do NOT invoke this command for general code quality or stylistic improvements.
 
-Before starting:
+Before spawning:
 1. Confirm there is a specific, measurable performance concern. If not, stop.
-2. Load `.agents/optimizer.md` as the system prompt for this agent.
-3. Load the skills listed at the bottom of that agent file.
-4. Confirm the local environment can be started (Docker, migrations, seed data).
+2. Confirm the local environment can be started (Docker, migrations, seed data).
+3. Spawn the `optimizer` subagent with a prompt that includes:
+   - Full contents of `.current-plan.md`
+   - Description of the specific performance concern (query, endpoint, component)
+   - Instruction to read `CLAUDE.md` and the skills listed in the agent file before starting
 
----
-
-The Optimizer will:
+The subagent will:
 - Establish a baseline measurement before any change
 - Apply one change at a time
 - Measure after each change

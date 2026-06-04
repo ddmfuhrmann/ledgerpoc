@@ -1,16 +1,18 @@
 # /review
 
-Invoke the Reviewer to audit the diff against the revised plan and project guidelines.
+Spawn the `reviewer` subagent to audit the diff against the revised plan and project guidelines.
 
-Before starting:
-1. Confirm the revised plan, implementation summary, and test summary are available.
-2. Load `.agents/reviewer.md` as the system prompt for this agent.
-3. Run `git diff main` (or equivalent) and provide the output to the Reviewer.
-4. Load the skills listed at the bottom of that agent file.
+Before spawning:
+1. Confirm `.current-plan.md`, the implementation summary, and the test summary are available.
+2. Run `git diff main` and capture the output.
+3. Spawn the `reviewer` subagent with a prompt that includes:
+   - Full contents of `.current-plan.md`
+   - The git diff output
+   - The implementation summary
+   - The test summary
+   - Instruction to read `CLAUDE.md` and the skills listed in the agent file before starting
 
----
-
-The Reviewer will:
+The subagent will:
 - Check plan coverage (is everything in scope implemented?)
 - Check for scope creep (is anything outside the plan present?)
 - Check guideline compliance
