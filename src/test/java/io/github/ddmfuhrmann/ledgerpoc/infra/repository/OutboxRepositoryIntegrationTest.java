@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -65,5 +67,93 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(reloaded.getStatus()).isEqualTo(OutboxStatus.PUBLISHED);
         assertThat(reloaded.getPublishedAt()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // findOldestPendingPerPayeeSkipLocked — one event per payee (oldest)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void shouldReturnOneEventPerPayeeWithOldestFirstWhenMultipleEventsExist() throws InterruptedException {
+        long payeeA = 10L;
+        long payeeB = 20L;
+
+        OutboxEvent payeeA_oldest = pendingEvent(payeeA, 101L, "CashInRequested");
+        outboxRepository.saveAndFlush(payeeA_oldest);
+        Thread.sleep(2);
+
+        OutboxEvent payeeA_middle = pendingEvent(payeeA, 102L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(payeeA_middle);
+        Thread.sleep(2);
+
+        OutboxEvent payeeA_newest = pendingEvent(payeeA, 103L, "CashOutRequested");
+        outboxRepository.saveAndFlush(payeeA_newest);
+        Thread.sleep(2);
+
+        OutboxEvent payeeB_oldest = pendingEvent(payeeB, 201L, "CashInRequested");
+        outboxRepository.saveAndFlush(payeeB_oldest);
+        Thread.sleep(2);
+
+        OutboxEvent payeeB_newest = pendingEvent(payeeB, 202L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(payeeB_newest);
+
+        List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(10);
+
+        assertThat(result).hasSize(2);
+        assertThat(result)
+                .extracting(OutboxEvent::getPayeeId)
+                .containsExactlyInAnyOrder(payeeA, payeeB);
+
+        OutboxEvent returnedForPayeeA = result.stream()
+                .filter(e -> e.getPayeeId().equals(payeeA))
+                .findFirst().orElseThrow();
+        assertThat(returnedForPayeeA.getId()).isEqualTo(payeeA_oldest.getId());
+
+        OutboxEvent returnedForPayeeB = result.stream()
+                .filter(e -> e.getPayeeId().equals(payeeB))
+                .findFirst().orElseThrow();
+        assertThat(returnedForPayeeB.getId()).isEqualTo(payeeB_oldest.getId());
+    }
+
+    @Test
+    void shouldRespectBatchSizeAndReturnOnlyOneEventWhenBatchSizeIsOne() throws InterruptedException {
+        long payeeA = 30L;
+        long payeeB = 40L;
+
+        outboxRepository.saveAndFlush(pendingEvent(payeeA, 301L, "CashInRequested"));
+        Thread.sleep(2);
+        outboxRepository.saveAndFlush(pendingEvent(payeeB, 401L, "CashInRequested"));
+
+        List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(1);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getStatus()).isEqualTo(OutboxStatus.PENDING);
+    }
+
+    @Test
+    void shouldNotReturnPublishedEventsWhenAllEventsForPayeeArePublished() {
+        long payeeA = 50L;
+        long payeeB = 60L;
+
+        OutboxEvent publishedEvent = pendingEvent(payeeA, 501L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(publishedEvent);
+        publishedEvent.markPublished();
+        outboxRepository.saveAndFlush(publishedEvent);
+
+        outboxRepository.saveAndFlush(pendingEvent(payeeB, 601L, "CashOutRequested"));
+
+        List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getPayeeId()).isEqualTo(payeeB);
+        assertThat(result.getFirst().getStatus()).isEqualTo(OutboxStatus.PENDING);
+    }
+
+    // -------------------------------------------------------------------------
+    // Fixture helpers
+    // -------------------------------------------------------------------------
+
+    private OutboxEvent pendingEvent(long payeeId, long aggregateId, String eventType) {
+        return new OutboxEvent("PAYMENT", aggregateId, payeeId, eventType, "{\"amount\":100}");
     }
 }

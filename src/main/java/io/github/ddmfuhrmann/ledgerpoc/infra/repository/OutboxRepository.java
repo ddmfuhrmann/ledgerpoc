@@ -13,12 +13,17 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
     List<OutboxEvent> findTop100ByStatusOrderByCreatedAtAsc(OutboxStatus status);
 
     @Query(value = """
-            SELECT DISTINCT ON (payee_id) *
-            FROM outbox
-            WHERE status = 'PENDING'
-            ORDER BY payee_id, created_at ASC
-            FOR UPDATE SKIP LOCKED
-            LIMIT :batchSize
+            WITH candidates AS MATERIALIZED (
+                SELECT DISTINCT ON (payee_id) id
+                FROM outbox
+                WHERE status = 'PENDING'
+                ORDER BY payee_id, created_at ASC
+                LIMIT :batchSize
+            )
+            SELECT o.*
+            FROM outbox o
+            JOIN candidates c ON o.id = c.id
+            FOR UPDATE OF o SKIP LOCKED
             """, nativeQuery = true)
     List<OutboxEvent> findOldestPendingPerPayeeSkipLocked(@Param("batchSize") int batchSize);
 
