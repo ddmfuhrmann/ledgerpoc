@@ -20,6 +20,9 @@ public class OutboxEvent {
     @Column(name = "aggregate_id", nullable = false)
     private Long aggregateId;
 
+    @Column(name = "payee_id", nullable = false, updatable = false)
+    private Long payeeId;
+
     @Column(name = "event_type", nullable = false)
     private String eventType;
 
@@ -44,11 +47,13 @@ public class OutboxEvent {
     public OutboxEvent(
             String aggregateType,
             Long aggregateId,
+            Long payeeId,
             String eventType,
             String payload
     ) {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
+        this.payeeId = payeeId;
         this.eventType = eventType;
         this.payload = payload;
         this.status = OutboxStatus.PENDING;
@@ -78,6 +83,10 @@ public class OutboxEvent {
 
     public Long getAggregateId() {
         return aggregateId;
+    }
+
+    public Long getPayeeId() {
+        return payeeId;
     }
 
     public String getEventType() {

@@ -268,6 +268,7 @@ class CashOutRequestedProcessorIntegrationTest extends AbstractIntegrationTest {
         );
         return OutboxEventType.CASH_OUT_REQUESTED.toEvent(
                 payment.getId(),
+                payee.getId(),
                 jsonSerializer.serialize(payload)
         );
     }

@@ -221,6 +221,7 @@ class CashInRequestedProcessorIntegrationTest extends AbstractIntegrationTest {
         );
         return OutboxEventType.CASH_IN_REQUESTED.toEvent(
                 payment.getId(),
+                payee.getId(),
                 jsonSerializer.serialize(payload)
         );
     }

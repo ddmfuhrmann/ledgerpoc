@@ -20,10 +20,11 @@ public enum OutboxEventType {
         return aggregateType;
     }
 
-    public OutboxEvent toEvent(Long aggregateId, String payloadJson) {
+    public OutboxEvent toEvent(Long aggregateId, Long payeeId, String payloadJson) {
         return new OutboxEvent(
                 aggregateType.name(),
                 aggregateId,
+                payeeId,
                 name(),
                 payloadJson
         );

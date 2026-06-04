@@ -3,24 +3,31 @@ package io.github.ddmfuhrmann.ledgerpoc.infra.repository;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxEvent;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxStatus;
 import io.github.ddmfuhrmann.ledgerpoc.integration.AbstractIntegrationTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Transactional
 class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private OutboxRepository outboxRepository;
 
+    @AfterEach
+    void cleanup() {
+        outboxRepository.deleteAll();
+    }
+
     @Test
     void shouldPersistAndLoadPendingOutboxEvent() {
         OutboxEvent event = new OutboxEvent(
                 "PAYMENT",
+                1L,
                 1L,
                 "CashOutConfirmed",
                 "{\"amount\":100}"
@@ -37,6 +44,7 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(loaded.getAggregateType()).isEqualTo("PAYMENT");
         assertThat(loaded.getAggregateId()).isEqualTo(1L);
+        assertThat(loaded.getPayeeId()).isEqualTo(1L);
         assertThat(loaded.getEventType()).isEqualTo("CashOutConfirmed");
         assertThat(loaded.getStatus()).isEqualTo(OutboxStatus.PENDING);
         assertThat(loaded.getCreatedAt()).isNotNull();
@@ -47,6 +55,7 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
     void shouldMarkEventAsPublished() {
         OutboxEvent event = new OutboxEvent(
                 "PAYMENT",
+                2L,
                 2L,
                 "CashInConfirmed",
                 "{\"amount\":50}"
@@ -63,5 +72,93 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(reloaded.getStatus()).isEqualTo(OutboxStatus.PUBLISHED);
         assertThat(reloaded.getPublishedAt()).isNotNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // findOldestPendingPerPayeeSkipLocked — one event per payee (oldest)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void shouldReturnOneEventPerPayeeWithOldestFirstWhenMultipleEventsExist() throws InterruptedException {
+        long payeeA = 10L;
+        long payeeB = 20L;
+
+        OutboxEvent payeeAOldest = pendingEvent(payeeA, 101L, "CashInRequested");
+        outboxRepository.saveAndFlush(payeeAOldest);
+        Thread.sleep(2);
+
+        OutboxEvent payeeAMiddle = pendingEvent(payeeA, 102L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(payeeAMiddle);
+        Thread.sleep(2);
+
+        OutboxEvent payeeANewest = pendingEvent(payeeA, 103L, "CashOutRequested");
+        outboxRepository.saveAndFlush(payeeANewest);
+        Thread.sleep(2);
+
+        OutboxEvent payeeBOldest = pendingEvent(payeeB, 201L, "CashInRequested");
+        outboxRepository.saveAndFlush(payeeBOldest);
+        Thread.sleep(2);
+
+        OutboxEvent payeeBNewest = pendingEvent(payeeB, 202L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(payeeBNewest);
+
+        List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(10);
+
+        assertThat(result).hasSize(2);
+        assertThat(result)
+                .extracting(OutboxEvent::getPayeeId)
+                .containsExactlyInAnyOrder(payeeA, payeeB);
+
+        OutboxEvent returnedForPayeeA = result.stream()
+                .filter(e -> e.getPayeeId().equals(payeeA))
+                .findFirst().orElseThrow();
+        assertThat(returnedForPayeeA.getId()).isEqualTo(payeeAOldest.getId());
+
+        OutboxEvent returnedForPayeeB = result.stream()
+                .filter(e -> e.getPayeeId().equals(payeeB))
+                .findFirst().orElseThrow();
+        assertThat(returnedForPayeeB.getId()).isEqualTo(payeeBOldest.getId());
+    }
+
+    @Test
+    void shouldRespectBatchSizeAndReturnOnlyOneEventWhenBatchSizeIsOne() throws InterruptedException {
+        long payeeA = 30L;
+        long payeeB = 40L;
+
+        outboxRepository.saveAndFlush(pendingEvent(payeeA, 301L, "CashInRequested"));
+        Thread.sleep(2);
+        outboxRepository.saveAndFlush(pendingEvent(payeeB, 401L, "CashInRequested"));
+
+        List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(1);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getStatus()).isEqualTo(OutboxStatus.PENDING);
+    }
+
+    @Test
+    void shouldNotReturnPublishedEventsWhenAllEventsForPayeeArePublished() {
+        long payeeA = 50L;
+        long payeeB = 60L;
+
+        OutboxEvent publishedEvent = pendingEvent(payeeA, 501L, "CashInConfirmed");
+        outboxRepository.saveAndFlush(publishedEvent);
+        publishedEvent.markPublished();
+        outboxRepository.saveAndFlush(publishedEvent);
+
+        outboxRepository.saveAndFlush(pendingEvent(payeeB, 601L, "CashOutRequested"));
+
+        List<OutboxEvent> result = outboxRepository.findOldestPendingPerPayeeSkipLocked(10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getPayeeId()).isEqualTo(payeeB);
+        assertThat(result.getFirst().getStatus()).isEqualTo(OutboxStatus.PENDING);
+    }
+
+    // -------------------------------------------------------------------------
+    // Fixture helpers
+    // -------------------------------------------------------------------------
+
+    private OutboxEvent pendingEvent(long payeeId, long aggregateId, String eventType) {
+        return new OutboxEvent("PAYMENT", aggregateId, payeeId, eventType, "{\"amount\":100}");
     }
 }

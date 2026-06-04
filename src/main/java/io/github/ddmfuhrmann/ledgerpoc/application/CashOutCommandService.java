@@ -1,6 +1,5 @@
 package io.github.ddmfuhrmann.ledgerpoc.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ddmfuhrmann.ledgerpoc.application.command.RequestCashOutCommand;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxEvent;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxEventType;
@@ -59,6 +58,7 @@ public class CashOutCommandService {
 
         OutboxEvent event = eventType.toEvent(
                 payment.getId(),
+                payee.getId(),
                 jsonSerializer.serialize(payload)
         );
 
