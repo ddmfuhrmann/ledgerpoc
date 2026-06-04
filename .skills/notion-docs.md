@@ -20,6 +20,8 @@ Ledger POC (página raiz)
 | Página | ID | URL |
 |---|---|---|
 | Ledger POC (raiz) | `2f54b4b4-84d1-8086-80c1-d722aa9e2f58` | https://app.notion.com/p/Ledger-POC-2f54b4b484d1808680c1d722aa9e2f58 |
+| 🗺️ Roadmap (página) | `3754b4b4-84d1-8176-9d00-e79ec9950e3b` | https://app.notion.com/p/Roadmap-LedgerPOC-3754b4b484d181769d00e79ec9950e3b |
+| 🗺️ Roadmap (tabela) | `3754b4b4-84d1-8169-b2d3-e649677b7561` | — bloco table dentro da página acima |
 | 📋 Plans | `3754b4b4-84d1-81a2-b65f-c009a31d5e18` | https://app.notion.com/p/Plans-3754b4b484d181a2b65fc009a31d5e18 |
 | 🏛️ ADRs | `3754b4b4-84d1-81a3-a77d-e8ffd5dba920` | https://app.notion.com/p/ADRs-3754b4b484d181a3a77de8ffd5dba920 |
 | 📝 PRDs | `3754b4b4-84d1-815d-b3ae-e0517c33e7fb` | https://app.notion.com/p/PRDs-3754b4b484d1815db3aee0517c33e7fb |
@@ -198,3 +200,34 @@ Ledger POC (página raiz)
 2. Criar sub-página com título `[YYYY-MM-DD] <título do PR>`.
 3. Preencher com o template Handoff acima, usando o output do `/handoff`.
 4. Retornar o link.
+
+### Atualizar Roadmap ao concluir uma feature
+
+Executar **sempre ao final do `/handoff`**, depois de salvar a sub-página de handoff.
+
+**Passo 1 — obter os IDs das linhas da tabela**
+
+Chamar `API-get-block-children` com `block_id = 3754b4b4-84d1-8169-b2d3-e649677b7561` (bloco table do Roadmap).
+A resposta é uma lista de `table_row` blocks. Cada item tem `id` e `table_row.cells` —
+`cells[0]` é a coluna Feature, `cells[2]` é Status.
+
+**Passo 2 — identificar a linha correta**
+
+Comparar `cells[0][0].plain_text` com o nome da feature concluída.
+Guardar o `id` da linha correspondente.
+
+**Passo 3 — atualizar o status**
+
+Chamar `API-update-a-block` com:
+- `block_id` = ID da linha encontrada no passo 2
+- body: `{"table_row": {"cells": [<célula 0 original>, <célula 1 original>, [{"type": "text", "text": {"content": "✅ Concluído"}}], <célula 3 original>, <célula 4 original>]}}`
+
+Preservar o conteúdo das outras células — substituir apenas `cells[2]`.
+
+**Quando usar status diferentes de ✅ Concluído**
+
+| Situação | Status |
+|---|---|
+| Trabalho iniciado, branch ativo | 🔄 Em progresso |
+| Depende de outra entrega não pronta | 🔒 Bloqueado |
+| Revertido / descartado | ⏳ Não iniciado |
