@@ -3,21 +3,25 @@ package io.github.ddmfuhrmann.ledgerpoc.infra.repository;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxEvent;
 import io.github.ddmfuhrmann.ledgerpoc.application.event.OutboxStatus;
 import io.github.ddmfuhrmann.ledgerpoc.integration.AbstractIntegrationTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Transactional
 class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private OutboxRepository outboxRepository;
+
+    @AfterEach
+    void cleanup() {
+        outboxRepository.deleteAll();
+    }
 
     @Test
     void shouldPersistAndLoadPendingOutboxEvent() {
@@ -40,6 +44,7 @@ class OutboxRepositoryIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(loaded.getAggregateType()).isEqualTo("PAYMENT");
         assertThat(loaded.getAggregateId()).isEqualTo(1L);
+        assertThat(loaded.getPayeeId()).isEqualTo(1L);
         assertThat(loaded.getEventType()).isEqualTo("CashOutConfirmed");
         assertThat(loaded.getStatus()).isEqualTo(OutboxStatus.PENDING);
         assertThat(loaded.getCreatedAt()).isNotNull();

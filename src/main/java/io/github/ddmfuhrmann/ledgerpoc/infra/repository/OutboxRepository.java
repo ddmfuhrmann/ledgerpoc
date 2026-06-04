@@ -25,6 +25,7 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
             JOIN candidates c ON o.id = c.id
             FOR UPDATE OF o SKIP LOCKED
             """, nativeQuery = true)
+    // batchSize = max number of payees to return (one oldest event each, not total events)
     List<OutboxEvent> findOldestPendingPerPayeeSkipLocked(@Param("batchSize") int batchSize);
 
 }
