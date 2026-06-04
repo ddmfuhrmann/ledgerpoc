@@ -180,3 +180,13 @@ changing the domain model.
 - Payee controls logical isolation
 - Balance eliminates the need for cross-partition aggregation
 - Partitioning decisions remain purely physical, not domain-driven
+
+---
+
+# Documentation
+
+| Document | Description |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | Design rationale — why append-only ledger, optimistic locking, outbox pattern, and payee serialization were chosen |
+| [`docs/workflow.md`](docs/workflow.md) | Development workflow guide — commands, agent structure, and artifact paths |
+| [`docs/workflow.pt-br.md`](docs/workflow.pt-br.md) | Guia do workflow em Português BR |
