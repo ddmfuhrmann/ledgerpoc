@@ -1,38 +1,38 @@
 # /f-plan
 
-Entry point do ciclo de desenvolvimento. Transforma qualquer input (conversa, ticket, PRD, ideia vaga) em um plano refinado via grill-me.
+Entry point of the development cycle. Transforms any input (conversation, ticket, PRD, vague idea) into a refined plan via grill-me.
 
 ## Procedure
 
-1. Usar o Plan agent nativo (subagent_type: Plan) para explorar o codebase e entender o impacto da tarefa.
-2. Spawnar o `notion-agent` para:
-   - Buscar ADRs em `LedgerPOC/ADRs/` (page_id: `3754b4b4-84d1-81a3-a77d-e8ffd5dba920`) que possam afetar a abordagem.
-   - Buscar Plans anteriores em `LedgerPOC/Plans/` (page_id: `3754b4b4-84d1-81a2-b65f-c009a31d5e18`) com escopo sobreposto.
-3. Produzir o plano estruturado com as seções:
-   - **Understanding** — o que a tarefa pede, em suas próprias palavras
-   - **Assumptions** — o que está sendo tratado como verdade sem estar explícito
-   - **Scope** — o que vai mudar (arquivos, camadas, comportamentos)
-   - **Out of scope** — o que explicitamente não será feito
-   - **Approach** — como implementar (concreto: "adicionar método X na classe Y que faz Z")
-   - **Files likely to change** — lista de arquivos ou diretórios
-   - **Tests needed** — casos de teste e tipo (unit/integration/contract/e2e)
-   - **Risks** — o que pode dar errado
-   - **Performance criteria** — critérios mensuráveis se houver, ou "none" se não houver
-   - **Blocking questions** — perguntas que devem ser respondidas antes de implementar
-4. Iniciar o loop de grill-me automaticamente:
-   - Para cada pergunta relevante sobre o plano, usar `AskUserQuestion` com uma pergunta por vez.
-   - Sempre incluir a resposta recomendada como primeira opção.
-   - Se a resposta pode ser encontrada no codebase, explorar o código e responder sem perguntar.
-   - Continuar até que não haja mais perguntas abertas relevantes.
-5. Ao concluir o grill-me:
-   - Sugerir um título curto (kebab-case) para o plano e confirmar com o usuário.
-   - Salvar o plano refinado localmente em `.plans/YYYY-MM-DD-<título>.md` com frontmatter:
+1. Use the native Plan agent (subagent_type: Plan) to explore the codebase and understand the task's impact.
+2. Spawn the `notion-agent` to:
+   - Search ADRs in `LedgerPOC/ADRs/` (page_id: `3754b4b4-84d1-81a3-a77d-e8ffd5dba920`) that may affect the approach.
+   - Search previous Plans in `LedgerPOC/Plans/` (page_id: `3754b4b4-84d1-81a2-b65f-c009a31d5e18`) with overlapping scope.
+3. Produce the structured plan with sections:
+   - **Understanding** — what the task asks for, in your own words
+   - **Assumptions** — what is being treated as true without being explicit
+   - **Scope** — what will change (files, layers, behaviors)
+   - **Out of scope** — what will explicitly not be done
+   - **Approach** — how to implement (concrete: "add method X in class Y that does Z")
+   - **Files likely to change** — list of files or directories
+   - **Tests needed** — test cases and type (unit/integration/contract/e2e)
+   - **Risks** — what could go wrong
+   - **Performance criteria** — measurable criteria if any, or "none" if not applicable
+   - **Blocking questions** — questions that must be answered before implementing
+4. Start the grill-me loop automatically:
+   - For each relevant question about the plan, use `AskUserQuestion` with one question at a time.
+   - Always include the recommended answer as the first option.
+   - If the answer can be found in the codebase, explore the code and answer without asking.
+   - Continue until there are no more relevant open questions.
+5. When grill-me is complete:
+   - Suggest a short title (kebab-case) for the plan and confirm with the user.
+   - Save the refined plan locally in `.plans/YYYY-MM-DD-<title>.md` with frontmatter:
      ```
      ---
      date: YYYY-MM-DD
-     title: <título>
-     notion_url: <url após salvar>
+     title: <title>
+     notion_url: <url after saving>
      ---
      ```
-   - Spawnar o `notion-agent` para salvar o plano em `LedgerPOC/Plans/`.
-   - Sugerir: `Plano salvo. Rode /f-implement <título> para continuar.`
+   - Spawn the `notion-agent` to save the plan in `LedgerPOC/Plans/`.
+   - Suggest: `Plan saved. Run /f-implement <title> to continue.`
