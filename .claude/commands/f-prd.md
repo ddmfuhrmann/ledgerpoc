@@ -1,19 +1,19 @@
 # /f-prd
 
-Cria um PRD via grill-me conversacional. Use antes do `/f-plan` para features de maior escopo.
+Creates a PRD via conversational grill-me. Use before `/f-plan` for larger-scope features.
 
 ## Procedure
 
-1. Usar `AskUserQuestion` para coletar, uma pergunta por vez:
-   - "Qual é o nome da feature?"
-   - "Qual problema resolve? Quem é afetado?"
-   - "Qual o objetivo mensurável?"
-   - "Quais são os requisitos funcionais principais?"
-   - "O que está explicitamente fora do escopo?"
-   - "Quais são os critérios de aceitação?"
-   - "Há perguntas em aberto ou bloqueadores?"
-2. Rascunhar o PRD e apresentar para revisão antes de salvar.
-3. Sugerir um título curto (kebab-case) e confirmar.
-4. Salvar localmente em `.plans/YYYY-MM-DD-<título>-prd.md`.
-5. Spawnar o `notion-agent` para salvar em `LedgerPOC/PRDs/`.
-6. Sugerir: `PRD salvo. Rode /f-plan para transformar em plano de implementação.`
+1. Use `AskUserQuestion` to collect, one question at a time:
+   - "What is the feature name?"
+   - "What problem does it solve? Who is affected?"
+   - "What is the measurable goal?"
+   - "What are the main functional requirements?"
+   - "What is explicitly out of scope?"
+   - "What are the acceptance criteria?"
+   - "Are there open questions or blockers?"
+2. Draft the PRD and present it for review before saving.
+3. Suggest a short title (kebab-case) and confirm.
+4. Save locally in `.plans/YYYY-MM-DD-<title>-prd.md`.
+5. Spawn the `notion-agent` to save in `LedgerPOC/PRDs/`.
+6. Suggest: `PRD saved. Run /f-plan to turn it into an implementation plan.`

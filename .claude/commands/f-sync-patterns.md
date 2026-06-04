@@ -1,19 +1,19 @@
 # /f-sync-patterns
 
-Escaneia o codebase e atualiza `.skills/patterns.md` com os padrões canônicos mais recentes.
+Scans the codebase and updates `.skills/patterns.md` with the latest canonical patterns.
 
-## Quando usar
+## When to use
 
-Após implementar um padrão novo relevante que outros agentes devem seguir. Evita que `.skills/patterns.md` fique stale.
+After implementing a new relevant pattern that other agents should follow. Prevents `.skills/patterns.md` from going stale.
 
 ## Procedure
 
-1. Ler todos os arquivos Java em `src/main/java/` e `src/test/java/`.
-2. Identificar padrões recorrentes em:
-   - Entities JPA (constructor protegido, constructor público, domain behavior, getters)
+1. Read all Java files in `src/main/java/` and `src/test/java/`.
+2. Identify recurring patterns in:
+   - JPA entities (protected constructor, public constructor, domain behavior, getters)
    - Domain behavior (state transitions, guard clauses, private helpers)
    - CommandService (@Service, @Transactional, outbox pattern)
-   - Processors (@Component, idempotência, delegate para privados)
+   - Processors (@Component, idempotency, delegate to private methods)
    - Integration tests (AbstractIntegrationTest, given/when/then, fixtures)
-3. Reescrever `.skills/patterns.md` com snippets reais e atualizados do codebase.
-4. Confirmar: `patterns.md atualizado com X padrões.`
+3. Rewrite `.skills/patterns.md` with real, up-to-date snippets from the codebase.
+4. Confirm: `patterns.md updated with X patterns.`
