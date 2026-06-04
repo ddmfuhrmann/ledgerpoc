@@ -23,4 +23,15 @@ public class JsonSerializer {
             );
         }
     }
+
+    public <T> T deserialize(String json, Class<T> type) {
+        try {
+            return objectMapper.readValue(json, type);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(
+                    "Failed to deserialize payload to type: " + type.getSimpleName(),
+                    e
+            );
+        }
+    }
 }
