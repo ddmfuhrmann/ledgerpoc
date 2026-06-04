@@ -13,6 +13,6 @@ public record CashInFailedPayload(
 
     @Override
     public OutboxEventType eventType() {
-        return OutboxEventType.CASH_OUT_FAILED;
+        return OutboxEventType.CASH_IN_FAILED;
     }
 }
