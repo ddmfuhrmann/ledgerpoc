@@ -142,10 +142,12 @@ These skills are loaded in every conversation and apply to all agents.
 | `.skills/benchmark-execution.md` | Load testing methodology |
 | `.skills/optimization-reporting.md` | Optimization report format |
 
-## Optional integrations *(experimental)*
+### Plugins
 
-| Skill | Activation | Purpose |
-|---|---|---|
-| `.skills/sonar-analysis.md` | Add `sonar-project.properties` to project root | SonarQube static analysis (code smells, bugs, vulnerabilities) injected into the review step |
+External tool plugins are declared in `.bsdd-plugins.yml` at the project root. Each plugin lives in `.skills/plugins/<name>.md`.
 
-Note: `sonar-project.properties` must contain project identity only (`projectKey`, `sources`, `exclusions`). Do not add `sonar.host.url` or `sonar.token` — the skill injects them at runtime, keeping the file safe for CI pipelines.
+| Plugin | Sub-agent | Purpose | Auto-detection |
+|---|---|---|---|
+| `sonar` | reviewer | SonarQube static analysis | `sonar-project.properties` present |
+| `xlint-removal` | reviewer | `@Deprecated(forRemoval=true)` warnings — Java only | `pom.xml` present |
+| `trivy` | reviewer | CVE scan on dependencies | Docker available |
